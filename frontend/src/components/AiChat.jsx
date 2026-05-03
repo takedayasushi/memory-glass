@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 
-export default function AboutChat({ user }) {
+export default function AiChat({ user, initialMessage, placeholder }) {
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'こんにちは！Memory Glassのアシスタントです。アプリの仕組みやアルゴリズムについて、何でも聞いてください。' }
+    { role: 'assistant', content: initialMessage || 'こんにちは！何でも聞いてください。' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -57,28 +57,28 @@ export default function AboutChat({ user }) {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', border: '1px solid var(--glass-border)', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', padding: '1rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', border: '1px solid var(--glass-border)', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', padding: '1rem' }}>
       
       {/* Chat Messages */}
       <div 
         ref={chatContainerRef}
-        style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '300px', overflowY: 'auto', padding: '0.5rem' }}
+        style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '250px', overflowY: 'auto', padding: '0.5rem' }}
       >
         {messages.map((msg, index) => (
           <div key={index} style={{ 
             alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
             background: msg.role === 'user' ? 'var(--accent-color)' : 'rgba(0,0,0,0.3)',
-            padding: '0.8rem 1rem',
+            padding: '0.6rem 0.8rem',
             borderRadius: '12px',
-            maxWidth: '80%',
+            maxWidth: '85%',
             lineHeight: '1.5',
-            fontSize: '0.95rem'
+            fontSize: '0.9rem'
           }}>
             {msg.content}
           </div>
         ))}
         {isLoading && (
-          <div style={{ alignSelf: 'flex-start', background: 'rgba(0,0,0,0.3)', padding: '0.8rem 1rem', borderRadius: '12px' }}>
+          <div style={{ alignSelf: 'flex-start', background: 'rgba(0,0,0,0.3)', padding: '0.6rem 0.8rem', borderRadius: '12px' }}>
             <span style={{ animation: 'pulse 1s infinite' }}>考え中...</span>
           </div>
         )}
@@ -90,12 +90,12 @@ export default function AboutChat({ user }) {
           type="text" 
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="質問を入力してください..."
+          placeholder={placeholder || '質問を入力してください...'}
           className="input-field"
-          style={{ flexGrow: 1 }}
+          style={{ flexGrow: 1, padding: '0.5rem 0.75rem', fontSize: '0.9rem' }}
           disabled={isLoading}
         />
-        <button type="submit" className="btn btn-primary" disabled={isLoading || !input.trim()}>
+        <button type="submit" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }} disabled={isLoading || !input.trim()}>
           送信
         </button>
       </form>

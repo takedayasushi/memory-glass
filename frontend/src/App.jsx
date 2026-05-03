@@ -6,7 +6,7 @@ import './App.css'
 import UploadSection from './components/UploadSection'
 import Flashcard from './components/Flashcard'
 import DbViewer from './components/DbViewer'
-import AboutChat from './components/AboutChat'
+import AiChat from './components/AiChat'
 import './lib/firebase' // Initialize Firebase based on skills
 
 function App() {
@@ -204,7 +204,11 @@ function App() {
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
                 「Firestoreのセキュリティルールって何？」や「間隔反復についてもっと詳しく教えて」など、気になることを聞いてみてください。
               </p>
-              <AboutChat user={user} />
+              <AiChat 
+                user={user}
+                initialMessage="こんにちは！Memory Glassのアシスタントです。アプリの仕組みやアルゴリズムについて、何でも聞いてください。"
+                placeholder="例: 間隔反復について詳しく教えて"
+              />
             </div>
           </section>
         </main>
@@ -258,7 +262,7 @@ function App() {
 
         {/* Right Column: DB Viewer */}
         <div className="right-column" style={{ position: 'sticky', top: '2rem', height: 'fit-content', maxHeight: 'calc(100vh - 8rem)' }}>
-          <DbViewer data={cards} />
+          <DbViewer data={cards} user={user} />
         </div>
 
           </main>
