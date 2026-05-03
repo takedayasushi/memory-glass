@@ -103,7 +103,7 @@ p {
 
 .dashboard-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 2rem;
   align-items: start;
 }
@@ -148,11 +148,11 @@ p {
   }
 
   .dashboard-layout.show-app .right-column {
-    display: none;
+    display: none !important;
   }
 
   .dashboard-layout.show-db .left-column {
-    display: none;
+    display: none !important;
   }
   
   .right-column {
