@@ -16,6 +16,8 @@ function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [activeTab, setActiveTab] = useState('app'); // 'app' or 'db'
+  const [prevCards, setPrevCards] = useState([]);
+  const [queryLogs, setQueryLogs] = useState([]);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -47,6 +49,51 @@ function App() {
 
     return () => unsubscribeSnapshot();
   }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    if (prevCards.length === 0 && cards.length > 0) {
+      // Fetch or batch added
+      const snippet = `db.collection('users').doc('${user.uid}').collection('cards').get()`;
+      setQueryLogs(prev => [
+        { id: Date.now() + Math.random(), time: new Date().toLocaleTimeString(), operation: 'GET / LIST', snippet },
+        ...prev
+      ]);
+    } else if (cards.length > prevCards.length) {
+      // Add operation
+      const diff = cards.filter(c => !prevCards.some(pc => pc.id === c.id));
+      diff.forEach(c => {
+        const snippet = `db.collection('users').doc('${user.uid}').collection('cards').add({ front: "${c.front.slice(0, 30)}...", back: "${c.back.slice(0, 30)}..." })`;
+        setQueryLogs(prev => [
+          { id: Date.now() + Math.random(), time: new Date().toLocaleTimeString(), operation: 'ADD', snippet },
+          ...prev
+        ]);
+      });
+    } else if (cards.length < prevCards.length) {
+      // Delete operation
+      const diff = prevCards.filter(pc => !cards.some(c => c.id === pc.id));
+      diff.forEach(c => {
+        const snippet = `db.collection('users').doc('${user.uid}').collection('cards').doc('${c.id}').delete()`;
+        setQueryLogs(prev => [
+          { id: Date.now() + Math.random(), time: new Date().toLocaleTimeString(), operation: 'DELETE', snippet },
+          ...prev
+        ]);
+      });
+    } else {
+      // Update operation or status changes
+      cards.forEach(c => {
+        const prevC = prevCards.find(pc => pc.id === c.id);
+        if (prevC && (prevC.interval !== c.interval || prevC.easeFactor !== c.easeFactor)) {
+          const snippet = `db.collection('users').doc('${user.uid}').collection('cards').doc('${c.id}').update({ interval: ${c.interval}, easeFactor: ${c.easeFactor} })`;
+          setQueryLogs(prev => [
+            { id: Date.now() + Math.random(), time: new Date().toLocaleTimeString(), operation: 'UPDATE', snippet },
+            ...prev
+          ]);
+        }
+      });
+    }
+    setPrevCards(cards);
+  }, [cards, user]);
 
   const handleLogin = async () => {
     const provider = new GoogleAuthProvider();
@@ -138,6 +185,23 @@ function App() {
       </div>
     );
   }
+
+  const getRetentionScore = (card) => {
+    if (!card.nextReviewDate) return 0;
+    const nextDate = card.nextReviewDate.toDate ? card.nextReviewDate.toDate() : new Date(card.nextReviewDate);
+    const now = new Date();
+    if (nextDate <= now) return 0;
+    const interval = card.interval || 1;
+    const diffTime = Math.abs(nextDate - now);
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+    let score = (diffDays / interval) * 100;
+    return Math.min(100, Math.max(0, Math.round(score)));
+  };
+
+  const highCount = cards.filter(c => getRetentionScore(c) >= 80).length;
+  const mediumCount = cards.filter(c => getRetentionScore(c) >= 40 && getRetentionScore(c) < 80).length;
+  const lowCount = cards.filter(c => getRetentionScore(c) < 40).length;
+  const avgRetention = cards.length > 0 ? Math.round(cards.reduce((sum, c) => sum + getRetentionScore(c), 0) / cards.length) : 0;
 
   return (
     <div className="app-container">
@@ -260,22 +324,81 @@ function App() {
           </section>
 
           {cards.length > 0 && (
-            <section className="section">
-              <h2 style={{ marginBottom: '1.5rem', color: 'white', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
-                2. Review Memories ({cards.length} cards)
-              </h2>
-              <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
-                {cards.map(card => (
-                  <Flashcard key={card.id} card={card} />
-                ))}
-              </div>
-            </section>
+            <>
+              <section className="section glass-panel" style={{ border: '1px solid var(--accent-color)' }}>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, fontSize: '1.2rem', color: 'var(--accent-color)' }}>
+                  📊 記憶定着度ダッシュボード (Memory Retention Status)
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.2rem' }}>
+                  SuperMemo-2 (SM-2) アルゴリズムに基づく現在の全カードの記憶強度と記憶定着度をリアルタイムに可視化しています。
+                </p>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', alignItems: 'center' }}>
+                  {/* Average Score Circle */}
+                  <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.15)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                      全体の平均定着度
+                    </div>
+                    <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: avgRetention >= 70 ? '#34d399' : avgRetention >= 40 ? '#fcd34d' : '#f87171', marginTop: '0.5rem' }}>
+                      {avgRetention}%
+                    </div>
+                    <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', opacity: 0.7 }}>
+                      {avgRetention >= 70 ? '🟢 定着状態：良好' : avgRetention >= 40 ? '🟡 定着状態：要復習' : '🔴 定着状態：忘却傾向'}
+                    </div>
+                  </div>
+
+                  {/* Breakdown with Progress Bars */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '4px' }}>
+                        <span>高定着度 (80%〜100%)</span>
+                        <span>{highCount} 枚</span>
+                      </div>
+                      <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ width: `${(highCount / cards.length) * 100 || 0}%`, height: '100%', background: '#34d399' }} />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '4px' }}>
+                        <span>中定着度 (40%〜79%)</span>
+                        <span>{mediumCount} 枚</span>
+                      </div>
+                      <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ width: `${(mediumCount / cards.length) * 100 || 0}%`, height: '100%', background: '#fcd34d' }} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '4px' }}>
+                        <span>低定着度 (0%〜39%)</span>
+                        <span>{lowCount} 枚</span>
+                      </div>
+                      <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ width: `${(lowCount / cards.length) * 100 || 0}%`, height: '100%', background: '#f87171' }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="section">
+                <h2 style={{ marginBottom: '1.5rem', color: 'white', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
+                  2. Review Memories ({cards.length} cards)
+                </h2>
+                <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
+                  {cards.map(card => (
+                    <Flashcard key={card.id} card={card} />
+                  ))}
+                </div>
+              </section>
+            </>
           )}
         </div>
 
         {/* Right Column: DB Viewer */}
         <div className="right-column" style={{ position: 'sticky', top: '2rem', height: 'fit-content', maxHeight: 'calc(100vh - 8rem)' }}>
-          <DbViewer data={cards} user={user} />
+          <DbViewer data={cards} user={user} queryLogs={queryLogs} />
         </div>
 
           </main>

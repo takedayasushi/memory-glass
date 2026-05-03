@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import AiChat from './AiChat';
 
-const DbViewer = ({ data, user }) => {
+const DbViewer = ({ data, user, queryLogs = [] }) => {
   const [showChat, setShowChat] = useState(false);
 
   return (
-    <section className="section glass-panel db-viewer" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <h2 style={{ marginBottom: '0.5rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '0.5rem' }}>
+    <section className="section glass-panel db-viewer" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <h2 style={{ marginBottom: '0.1rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '0.5rem' }}>
         🔍 Firestore Real-time Viewer
       </h2>
       
       {/* Explanation Section */}
-      <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem', lineHeight: '1.6' }}>
+      <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
         <p style={{ margin: '0 0 0.5rem 0' }}>
           この画面は、<strong style={{ color: 'var(--text-primary)' }}>Cloud Firestore データベースの中身</strong>をリアルタイムで覗き見しています。
         </p>
@@ -31,6 +31,36 @@ const DbViewer = ({ data, user }) => {
             左側のアプリで「Good」や「Forgot」ボタンを押すと、ここの数値がリアルタイムに更新されるのを確認できます！
           </p>
         </details>
+      </div>
+
+      {/* Query Logs Display */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <h3 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--accent-color)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+          📜 クエリ履歴 (Firestore Query Logs)
+        </h3>
+        <div style={{ 
+          background: 'rgba(0,0,0,0.3)', 
+          padding: '0.6rem', 
+          borderRadius: '8px', 
+          border: '1px solid rgba(255,255,255,0.05)', 
+          height: '100px', 
+          overflowY: 'auto',
+          fontSize: '0.78rem',
+          fontFamily: 'monospace',
+          color: '#34d399'
+        }}>
+          {queryLogs.length > 0 ? (
+            queryLogs.map(log => (
+              <div key={log.id} style={{ marginBottom: '0.4rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.4rem' }}>
+                <span style={{ color: '#9ca3af' }}>[{log.time}]</span>{' '}
+                <span style={{ color: '#fcd34d', fontWeight: 'bold' }}>{log.operation}</span>:{' '}
+                <span style={{ color: '#60a5fa' }}>{log.snippet}</span>
+              </div>
+            ))
+          ) : (
+            <div style={{ color: 'rgba(255,255,255,0.3)' }}>// クエリはまだ実行されていません。追加・変更・削除時にここにログが表示されます。</div>
+          )}
+        </div>
       </div>
 
       {/* JSON Data */}

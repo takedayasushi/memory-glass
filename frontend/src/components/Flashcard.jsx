@@ -1,10 +1,24 @@
 import { useState } from 'react';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
 import './Flashcard.css';
 
 export default function Flashcard({ card }) {
   const [isFlipped, setIsFlipped] = useState(false);
+
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    if (!window.confirm("このカードを削除してもよろしいですか？")) return;
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const cardRef = doc(db, 'users', user.uid, 'cards', card.id);
+      await deleteDoc(cardRef);
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("カードの削除に失敗しました。");
+    }
+  };
 
   const handleReview = async (quality) => {
     // SuperMemo-2 Algorithm calculation
@@ -57,6 +71,30 @@ export default function Flashcard({ card }) {
         
         {/* Front side (Question) */}
         <div className="flashcard-front glass-panel">
+          <button 
+            onClick={handleDelete}
+            style={{
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              background: 'rgba(239, 68, 68, 0.2)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              borderRadius: '50%',
+              width: '28px',
+              height: '28px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fca5a5',
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              zIndex: 10,
+              transition: 'all 0.2s ease'
+            }}
+            title="カードを削除"
+          >
+            ✕
+          </button>
           <div className="card-content">
             <span className="card-label">Question</span>
             <p className="card-text">{card.front}</p>
@@ -74,6 +112,30 @@ export default function Flashcard({ card }) {
 
         {/* Back side (Answer) */}
         <div className="flashcard-back glass-panel">
+          <button 
+            onClick={handleDelete}
+            style={{
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              background: 'rgba(239, 68, 68, 0.2)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              borderRadius: '50%',
+              width: '28px',
+              height: '28px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fca5a5',
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              zIndex: 10,
+              transition: 'all 0.2s ease'
+            }}
+            title="カードを削除"
+          >
+            ✕
+          </button>
           <div className="card-content">
              <span className="card-label">Answer</span>
              <p className="card-text">{card.back}</p>
