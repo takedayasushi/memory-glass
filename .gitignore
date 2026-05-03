@@ -1,0 +1,38 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+firebase-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Firebase & GCP Secrets
+serviceAccountKey.json
+google-services.json
+GoogleService-Info.plist
+.firebase/
+firestore-debug.log
+
+# Frontend Build
+frontend/dist/
+frontend/build/
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/
+*.swp
