@@ -122,6 +122,7 @@ export default function UploadSection({ onUpload }) {
             />
           </div>
         ) : (
+          <>
           <div className="input-group file-drop-area">
             <input 
               type="file" 
@@ -141,6 +142,7 @@ export default function UploadSection({ onUpload }) {
           {fileError && (
             <p style={{ color: '#ff6b6b', fontSize: '0.85rem', margin: '0.5rem 0 0' }}>{fileError}</p>
           )}
+          </>
         )}
         
         <button 
