@@ -30,21 +30,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.post('/api/debug-generate', async (req, res) => {
-  try {
-    const { generateFlashcards } = require('./services/geminiService');
-    const { text } = req.body;
-    const cards = await generateFlashcards(text || "Test text", null);
-    res.json({ success: true, cards });
-  } catch (e) {
-    res.status(500).json({
-      success: false,
-      error: e.message,
-      stack: e.stack
-    });
-  }
-});
-
 // API Endpoint to generate and save flashcards
 app.post('/api/generate-cards', authMiddleware, async (req, res) => {
   try {
