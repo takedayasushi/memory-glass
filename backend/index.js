@@ -107,6 +107,10 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
     console.error('Chat API Error:', error);
     res.status(500).json({ success: false, error: 'Failed to process chat' });
   }
+// Global error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled Server Error:', err);
+  res.status(500).json({ success: false, error: err.message, stack: err.stack });
 });
 
 // Only listen locally if run directly via node
