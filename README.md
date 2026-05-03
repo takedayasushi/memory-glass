@@ -25,7 +25,16 @@ memory-glass/
 |---|---|---|
 | **frontend/** | React + Vite によるUI。Glassmorphism デザインシステム、Firebase Auth/Firestore Client SDK を利用 | [frontend/README.md](./frontend/README.md) |
 | **backend/** | Node.js + Express によるAPI。Gemini AI連携、Firebase Admin SDK による特権DB操作 | [backend/README.md](./backend/README.md) |
-| **docs/** | システムアーキテクチャ詳細ドキュメント | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
+
+### 📖 技術ドキュメント (`docs/`)
+
+| ドキュメント | 内容 |
+|---|---|
+| [ARCHITECTURE.md](./docs/ARCHITECTURE.md) | システム全体の3層アーキテクチャ、GCP/Firebaseサービス一覧、データフロー図（Mermaid）、Firestoreデータモデル |
+| [API_REFERENCE.md](./docs/API_REFERENCE.md) | REST APIエンドポイント仕様、リクエスト/レスポンスの具体例（curl付き）、エラーハンドリング |
+| [SPACED_REPETITION.md](./docs/SPACED_REPETITION.md) | SM-2アルゴリズムの数式・実装コード解説、パラメータ推移のシミュレーション表 |
+| [SECURITY.md](./docs/SECURITY.md) | 多層防御の設計思想、脅威モデルと対策、セキュリティチェックリスト |
+| [DEPLOYMENT_GUIDE.md](./docs/DEPLOYMENT_GUIDE.md) | ローカル開発環境のセットアップから本番デプロイ（手動/GitHub Actions）までの手順 |
 
 ---
 
