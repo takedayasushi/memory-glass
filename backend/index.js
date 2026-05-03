@@ -107,6 +107,8 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
     console.error('Chat API Error:', error);
     res.status(500).json({ success: false, error: 'Failed to process chat' });
   }
+});
+
 // Global error handling middleware
 app.use((err, req, res, next) => {
   console.error('Unhandled Server Error:', err);
