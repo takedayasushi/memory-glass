@@ -30,12 +30,19 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.get('/api/debug-env', (req, res) => {
-  res.json({
-    geminiKeyExists: !!process.env.GEMINI_API_KEY,
-    geminiKeyPrefix: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 4) : null,
-    envKeys: Object.keys(process.env).filter(k => k.includes('GEMINI') || k.includes('KEY'))
-  });
+app.post('/api/debug-generate', async (req, res) => {
+  try {
+    const { generateFlashcards } = require('./services/geminiService');
+    const { text } = req.body;
+    const cards = await generateFlashcards(text || "Test text", null);
+    res.json({ success: true, cards });
+  } catch (e) {
+    res.status(500).json({
+      success: false,
+      error: e.message,
+      stack: e.stack
+    });
+  }
 });
 
 // API Endpoint to generate and save flashcards
