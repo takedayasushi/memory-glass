@@ -46,16 +46,25 @@ app.post('/api/debug-generate', async (req, res) => {
 });
 
 // API Endpoint to generate and save flashcards
-app.post('/api/generate-cards', authMiddleware, upload.any(), async (req, res) => {
+app.post('/api/generate-cards', authMiddleware, async (req, res) => {
   try {
-    const { text } = req.body;
-    const file = req.files && req.files.find(f => f.fieldname === 'image');
+    const { text, image, mimeType } = req.body;
 
-    if (!text && !file) {
+    if (!text && !image) {
       return res.status(400).json({ error: 'Please provide text or an image.' });
     }
 
     console.log(`Processing request for user UID: ${req.user.uid}`);
+
+    let file = null;
+    if (image) {
+      // If the client sends a data URL or base64 string
+      const base64Data = image.includes('base64,') ? image.split('base64,')[1] : image;
+      file = {
+        buffer: base64Data,
+        mimetype: mimeType || 'image/jpeg'
+      };
+    }
 
     // Call Gemini API
     const cards = await generateFlashcards(text, file);

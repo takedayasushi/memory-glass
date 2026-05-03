@@ -71,20 +71,33 @@ function App() {
 
     try {
       const idToken = await user.getIdToken();
-      const formData = new FormData();
-      
+      let payload = {};
+
       if (data.type === 'text') {
-        formData.append('text', data.content);
+        payload.text = data.content;
       } else if (data.type === 'image') {
-        formData.append('image', data.file);
+        const fileToBase64 = (file) => new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = error => reject(error);
+        });
+
+        const base64Data = await fileToBase64(data.file);
+        payload.image = base64Data;
+        payload.mimeType = data.file.type || 'image/jpeg';
+        if (data.content) {
+          payload.text = data.content;
+        }
       }
 
       const response = await fetch('https://asia-northeast1-memory-glass-2026.cloudfunctions.net/api/api/generate-cards', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${idToken}`
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json'
         },
-        body: formData
+        body: JSON.stringify(payload)
       });
 
       const result = await response.json();

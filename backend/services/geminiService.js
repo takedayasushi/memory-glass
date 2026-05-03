@@ -20,8 +20,8 @@ async function generateFlashcards(text, imageFile) {
     // If an image is provided, we pass the image bytes
     contents.push({
       inlineData: {
-        data: imageFile.buffer.toString('base64'),
-        mimeType: imageFile.mimetype
+        data: typeof imageFile.buffer === 'string' ? imageFile.buffer : (imageFile.buffer ? imageFile.buffer.toString('base64') : imageFile.data),
+        mimeType: imageFile.mimetype || imageFile.mimeType || 'image/jpeg'
       }
     });
   }
