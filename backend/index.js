@@ -106,5 +106,6 @@ const { onRequest } = require("firebase-functions/v2/https");
 exports.api = onRequest({ 
   region: "asia-northeast1", 
   memory: "512MiB",
+  timeoutSeconds: 120,
   secrets: ["GEMINI_API_KEY"] // Will bind the secret from GCP Secret Manager
 }, app);
