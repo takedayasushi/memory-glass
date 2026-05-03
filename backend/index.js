@@ -30,6 +30,14 @@ app.use(cors({
 }));
 app.use(express.json());
 
+app.get('/api/debug-env', (req, res) => {
+  res.json({
+    geminiKeyExists: !!process.env.GEMINI_API_KEY,
+    geminiKeyPrefix: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 4) : null,
+    envKeys: Object.keys(process.env).filter(k => k.includes('GEMINI') || k.includes('KEY'))
+  });
+});
+
 // API Endpoint to generate and save flashcards
 app.post('/api/generate-cards', authMiddleware, upload.single('image'), async (req, res) => {
   try {
