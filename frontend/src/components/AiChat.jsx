@@ -10,13 +10,19 @@ export default function AiChat({ user, initialMessage, placeholder }) {
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    const timer = setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [messages, isLoading]);
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -62,7 +68,18 @@ export default function AiChat({ user, initialMessage, placeholder }) {
       {/* Chat Messages */}
       <div 
         ref={chatContainerRef}
-        style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '250px', overflowY: 'auto', padding: '0.5rem' }}
+        style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '0.75rem', 
+          minHeight: '150px',
+          maxHeight: '400px', 
+          height: 'auto',
+          overflowY: 'auto', 
+          overflowX: 'hidden',
+          padding: '0.5rem',
+          wordBreak: 'break-word'
+        }}
       >
         {messages.map((msg, index) => (
           <div key={index} style={{ 
@@ -70,9 +87,10 @@ export default function AiChat({ user, initialMessage, placeholder }) {
             background: msg.role === 'user' ? 'var(--accent-color)' : 'rgba(0,0,0,0.3)',
             padding: '0.6rem 0.8rem',
             borderRadius: '12px',
-            maxWidth: '85%',
+            maxWidth: '90%',
             lineHeight: '1.5',
-            fontSize: '0.9rem'
+            fontSize: '0.9rem',
+            whiteSpace: 'pre-wrap'
           }}>
             {msg.content}
           </div>
