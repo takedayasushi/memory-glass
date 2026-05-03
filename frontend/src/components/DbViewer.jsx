@@ -5,13 +5,13 @@ const DbViewer = ({ data, user, queryLogs = [] }) => {
   const [showChat, setShowChat] = useState(false);
 
   return (
-    <section className="section glass-panel db-viewer" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <section className="section glass-panel db-viewer" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflowX: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <h2 style={{ marginBottom: '0.1rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '0.5rem' }}>
         🔍 Firestore Real-time Viewer
       </h2>
       
       {/* Explanation Section */}
-      <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+      <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6', wordBreak: 'break-word' }}>
         <p style={{ margin: '0 0 0.5rem 0' }}>
           この画面は、<strong style={{ color: 'var(--text-primary)' }}>Cloud Firestore データベースの中身</strong>をリアルタイムで覗き見しています。
         </p>
@@ -34,7 +34,7 @@ const DbViewer = ({ data, user, queryLogs = [] }) => {
       </div>
 
       {/* Query Logs Display */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
         <h3 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--accent-color)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
           📜 クエリ履歴 (Firestore Query Logs)
         </h3>
@@ -45,13 +45,18 @@ const DbViewer = ({ data, user, queryLogs = [] }) => {
           border: '1px solid rgba(255,255,255,0.05)', 
           height: '100px', 
           overflowY: 'auto',
+          overflowX: 'hidden',
           fontSize: '0.78rem',
           fontFamily: 'monospace',
-          color: '#34d399'
+          color: '#34d399',
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          wordBreak: 'break-all'
         }}>
           {queryLogs.length > 0 ? (
             queryLogs.map(log => (
-              <div key={log.id} style={{ marginBottom: '0.4rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.4rem' }}>
+              <div key={log.id} style={{ marginBottom: '0.4rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.4rem', wordBreak: 'break-all', whiteSpace: 'pre-wrap' }}>
                 <span style={{ color: '#9ca3af' }}>[{log.time}]</span>{' '}
                 <span style={{ color: '#fcd34d', fontWeight: 'bold' }}>{log.operation}</span>:{' '}
                 <span style={{ color: '#60a5fa' }}>{log.snippet}</span>
@@ -71,6 +76,7 @@ const DbViewer = ({ data, user, queryLogs = [] }) => {
           padding: '0.75rem', 
           borderRadius: '8px', 
           overflowY: 'auto', 
+          overflowX: 'hidden',
           flexGrow: 1,
           flexShrink: 1,
           minHeight: '120px',
@@ -79,14 +85,17 @@ const DbViewer = ({ data, user, queryLogs = [] }) => {
           fontSize: '0.8rem',
           color: '#a5b4fc',
           whiteSpace: 'pre-wrap',
-          wordBreak: 'break-all'
+          wordBreak: 'break-all',
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box'
         }}
       >
         {data.length > 0 ? JSON.stringify(data, null, 2) : '// まだカードがありません。左側の画面からテキストや画像を送信すると、ここにデータが表示されます。'}
       </div>
 
       {/* AI Chat Toggle & Section */}
-      <div style={{ marginTop: '0.75rem', borderTop: '1px solid var(--glass-border)', paddingTop: '0.75rem' }}>
+      <div style={{ marginTop: '0.75rem', borderTop: '1px solid var(--glass-border)', paddingTop: '0.75rem', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
         <button 
           className="btn"
           onClick={() => setShowChat(!showChat)}
@@ -104,7 +113,7 @@ const DbViewer = ({ data, user, queryLogs = [] }) => {
         </button>
         
         {showChat && (
-          <div style={{ marginTop: '0.75rem' }}>
+          <div style={{ marginTop: '0.75rem', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
             <AiChat 
               user={user}
               initialMessage="こんにちは！Firestoreデータベースの仕組みや、表示されているJSONデータの読み方、間隔反復のアルゴリズムなど、何でも聞いてください。"
