@@ -1,7 +1,14 @@
 const { GoogleGenAI } = require('@google/genai');
 
-// Initialize the client explicitly with the API key to avoid conflict with Firebase service account
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Lazy-initialize the client to ensure GEMINI_API_KEY is available
+// (Secret Manager injects env vars at runtime, not at module load time)
+let ai = null;
+function getAI() {
+  if (!ai) {
+    ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  }
+  return ai;
+}
 
 async function generateFlashcards(text, imageFile) {
   // We use gemini-3.1-pro-preview for complex reasoning and structured output as per skill guidelines.
@@ -34,7 +41,7 @@ async function generateFlashcards(text, imageFile) {
   contents.push(prompt);
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: model,
       contents: contents,
       config: {

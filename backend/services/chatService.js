@@ -1,6 +1,12 @@
 const { GoogleGenAI } = require('@google/genai');
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let ai = null;
+function getAI() {
+  if (!ai) {
+    ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  }
+  return ai;
+}
 
 async function handleChat(messages) {
   // Use a fast model for chat
@@ -34,7 +40,7 @@ async function handleChat(messages) {
   }));
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: model,
       contents: formattedContents,
       config: {
