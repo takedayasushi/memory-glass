@@ -3,7 +3,7 @@ import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
 import './Flashcard.css';
 
-export default function Flashcard({ card }) {
+export default function Flashcard({ card, onReviewed }) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const handleDelete = async (e) => {
@@ -55,6 +55,9 @@ export default function Flashcard({ card }) {
     }
 
     setIsFlipped(false);
+    if (onReviewed) {
+      onReviewed(card.id, quality);
+    }
   };
 
   // Helper to format date for metadata display

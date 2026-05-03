@@ -18,6 +18,8 @@ function App() {
   const [activeTab, setActiveTab] = useState('app'); // 'app' or 'db'
   const [prevCards, setPrevCards] = useState([]);
   const [queryLogs, setQueryLogs] = useState([]);
+  const [reviewMode, setReviewMode] = useState('list'); // 'list' or 'study'
+  const [studyIndex, setStudyIndex] = useState(0);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -203,6 +205,12 @@ function App() {
   const lowCount = cards.filter(c => getRetentionScore(c) < 40).length;
   const avgRetention = cards.length > 0 ? Math.round(cards.reduce((sum, c) => sum + getRetentionScore(c), 0) / cards.length) : 0;
 
+  const studyCards = [...cards].sort((a, b) => {
+    const dateA = a.nextReviewDate ? (a.nextReviewDate.toDate ? a.nextReviewDate.toDate() : new Date(a.nextReviewDate)) : new Date(0);
+    const dateB = b.nextReviewDate ? (b.nextReviewDate.toDate ? b.nextReviewDate.toDate() : new Date(b.nextReviewDate)) : new Date(0);
+    return dateA - dateB;
+  });
+
   return (
     <div className="app-container">
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
@@ -383,14 +391,119 @@ function App() {
               </section>
 
               <section className="section">
-                <h2 style={{ marginBottom: '1.5rem', color: 'white', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
-                  2. Review Memories ({cards.length} cards)
-                </h2>
-                <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
-                  {cards.map(card => (
-                    <Flashcard key={card.id} card={card} />
-                  ))}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                  <h2 style={{ color: 'white', margin: 0, textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
+                    2. Review Memories ({cards.length} cards)
+                  </h2>
+                  
+                  {/* Mode Switcher */}
+                  <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.1)', padding: '4px', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+                    <button 
+                      onClick={() => setReviewMode('list')}
+                      style={{
+                        background: reviewMode === 'list' ? 'var(--accent-color)' : 'transparent',
+                        color: reviewMode === 'list' ? 'white' : 'var(--text-primary)',
+                        border: 'none', padding: '0.4rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', transition: 'all 0.2s', fontSize: '0.85rem'
+                      }}
+                    >
+                      📋 一覧モード
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setReviewMode('study');
+                        setStudyIndex(0);
+                      }}
+                      style={{
+                        background: reviewMode === 'study' ? 'var(--accent-color)' : 'transparent',
+                        color: reviewMode === 'study' ? 'white' : 'var(--text-primary)',
+                        border: 'none', padding: '0.4rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', transition: 'all 0.2s', fontSize: '0.85rem'
+                      }}
+                    >
+                      🧠 定着学習モード
+                    </button>
+                  </div>
                 </div>
+
+                {reviewMode === 'list' ? (
+                  <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
+                    {cards.map(card => (
+                      <Flashcard key={card.id} card={card} />
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', width: '100%', maxWidth: '100%' }}>
+                    {studyCards.length > 0 ? (
+                      <>
+                        <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
+                          <span>学習の進捗</span>
+                          <span>{studyIndex + 1} / {studyCards.length} 枚</span>
+                        </div>
+                        {/* Progressive indicator bar */}
+                        <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ width: `${((studyIndex + 1) / studyCards.length) * 100}%`, height: '100%', background: 'var(--accent-color)', transition: 'width 0.3s ease' }} />
+                        </div>
+                        
+                        {/* Animated Card Container */}
+                        <div 
+                          key={studyCards[studyIndex]?.id}
+                          className="study-card-container"
+                          style={{
+                            width: '100%',
+                            animation: 'slideIn 0.4s ease-out'
+                          }}
+                        >
+                          <Flashcard 
+                            card={studyCards[studyIndex]} 
+                            onReviewed={(cardId, quality) => {
+                              setTimeout(() => {
+                                if (studyIndex < studyCards.length - 1) {
+                                  setStudyIndex(prev => prev + 1);
+                                }
+                              }, 600);
+                            }}
+                          />
+                        </div>
+
+                        {/* Prev / Next buttons */}
+                        <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
+                          <button 
+                            className="btn" 
+                            disabled={studyIndex === 0}
+                            onClick={() => setStudyIndex(prev => Math.max(0, prev - 1))}
+                            style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', padding: '0.5rem 1.2rem', color: 'var(--text-primary)', opacity: studyIndex === 0 ? 0.4 : 1 }}
+                          >
+                            ◀ 前へ
+                          </button>
+                          <button 
+                            className="btn btn-primary" 
+                            disabled={studyIndex === studyCards.length - 1}
+                            onClick={() => setStudyIndex(prev => Math.min(studyCards.length - 1, prev + 1))}
+                            style={{ padding: '0.5rem 1.2rem', opacity: studyIndex === studyCards.length - 1 ? 0.4 : 1 }}
+                          >
+                            次へ ▶
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.7)' }}>
+                        <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>🎉</div>
+                        <p style={{ fontSize: '1.1rem', margin: 0, fontWeight: 'bold' }}>
+                          素晴らしい！すべての復習が終わりました！
+                        </p>
+                        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                          定期的に定着学習を繰り返して、より長期記憶に定着させましょう。
+                        </p>
+                        <button 
+                          className="btn" 
+                          onClick={() => setReviewMode('list')}
+                          style={{ marginTop: '1.5rem', background: 'rgba(255,255,255,0.15)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)' }}
+                        >
+                          📋 全カード一覧へ戻る
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </section>
             </>
           )}
