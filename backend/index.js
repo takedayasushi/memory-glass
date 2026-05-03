@@ -46,10 +46,10 @@ app.post('/api/debug-generate', async (req, res) => {
 });
 
 // API Endpoint to generate and save flashcards
-app.post('/api/generate-cards', authMiddleware, upload.single('image'), async (req, res) => {
+app.post('/api/generate-cards', authMiddleware, upload.any(), async (req, res) => {
   try {
     const { text } = req.body;
-    const file = req.file;
+    const file = req.files && req.files.find(f => f.fieldname === 'image');
 
     if (!text && !file) {
       return res.status(400).json({ error: 'Please provide text or an image.' });
