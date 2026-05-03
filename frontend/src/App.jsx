@@ -199,7 +199,7 @@ function App() {
           </section>
         </main>
       ) : (
-        <main className="main-content" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', alignItems: 'start' }}>
+        <main className="main-content dashboard-layout">
         
         {/* Left Column: UI */}
         <div className="left-column" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -229,7 +229,7 @@ function App() {
         </div>
 
         {/* Right Column: DB Viewer */}
-        <div className="right-column" style={{ position: 'sticky', top: '2rem', height: 'calc(100vh - 8rem)' }}>
+        <div className="right-column" style={{ position: 'sticky', top: '2rem', height: 'fit-content', maxHeight: 'calc(100vh - 8rem)' }}>
           <DbViewer data={cards} />
         </div>
 
