@@ -165,25 +165,34 @@ function App() {
               <h3>このアプリの目的</h3>
               <p>Memory Glass は、テキストやノートの写真を放り込むだけで、AIが自動的に「一番覚えるべきポイント」を抽出し、<strong>間隔反復（Spaced Repetition）</strong> 学習用のフラッシュカードを生成するアプリケーションです。</p>
               
-              <h3 style={{ marginTop: '1.5rem' }}>裏側で動いているテクノロジー（アーキテクチャ）</h3>
-              <ul style={{ paddingLeft: '1.5rem', marginBottom: '1rem' }}>
-                <li><strong>フロントエンド</strong>: React + Vite (すりガラス風の Glassmorphism デザイン)</li>
-                <li><strong>バックエンド</strong>: Node.js + Express</li>
-                <li><strong>AI</strong>: Google Gemini API (<code>gemini-3.1-pro-preview</code>)</li>
-                <li><strong>データベース</strong>: Firebase Cloud Firestore</li>
-                <li><strong>認証</strong>: Firebase Authentication (Google ログイン)</li>
-              </ul>
+              <h3 style={{ marginTop: '2rem', color: 'var(--accent-color)', borderBottom: '1px solid var(--glass-border)', paddingBottom: '0.5rem' }}>
+                🏗️ システムアーキテクチャ (GCP & Firebase)
+              </h3>
+              <p>このアプリケーションは、Google Cloud Platform (GCP) と Firebase の各サービスを組み合わせ、本番運用可能な堅牢なアーキテクチャで構築されています。</p>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '1rem', marginBottom: '2rem' }}>
+                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#60a5fa' }}>📱 フロントエンド</h4>
+                  <p style={{ fontSize: '0.9rem', margin: 0 }}><strong>React + Vite + Firebase Hosting</strong><br/>高速な描画とGlassmorphismデザインを採用し、Firebase HostingのグローバルCDNを通じて高速配信されています。</p>
+                </div>
+                
+                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#fca5a5' }}>⚙️ バックエンドAPI</h4>
+                  <p style={{ fontSize: '0.9rem', margin: 0 }}><strong>Cloud Functions for Firebase v2</strong><br/>裏側は GCP Cloud Run で動くサーバーレス環境（Node.js/Express）。アクセス時のみ起動し、高負荷にも自動スケールで対応します。</p>
+                </div>
 
-              <h3 style={{ marginTop: '1.5rem' }}>データの流れとセキュリティ</h3>
-              <p>本番環境でも安全に運用できるよう、以下のようなエンタープライズ水準の設計を採用しています。</p>
-              <ol style={{ paddingLeft: '1.5rem', marginBottom: '1rem' }}>
-                <li>フロントエンドからバックエンドへ、安全な「IDトークン（身分証明）」を送信。</li>
-                <li>バックエンドがトークンを検証し、AIでカードを自動生成。</li>
-                <li>バックエンドがAPIキーを隠したまま、Firestore データベースに直接保存。</li>
-                <li>Firestore の <code>onSnapshot</code> 機能により、画面をリロードしなくてもフロントエンドの画面にリアルタイムでデータが同期（降ってくる）されます。</li>
-              </ol>
+                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#fcd34d' }}>🗄️ データベース</h4>
+                  <p style={{ fontSize: '0.9rem', margin: 0 }}><strong>Cloud Firestore</strong><br/>フルマネージドなNoSQLデータベース。WebSocket経由でクライアントと常時接続し、データの変更を画面をリロードせずに「リアルタイム同期」します。</p>
+                </div>
 
-              <h3 style={{ marginTop: '1.5rem' }}>学習（復習）のアルゴリズム</h3>
+                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#34d399' }}>🔐 セキュリティ＆認証</h4>
+                  <p style={{ fontSize: '0.9rem', margin: 0 }}><strong>Firebase Auth & Secret Manager</strong><br/>Google認証でユーザーを特定。Firestore Rulesで「他人のデータ」を強力にブロックし、Gemini APIキーはGCP Secret Managerで暗号化・隔離して安全に管理しています。</p>
+                </div>
+              </div>
+
+              <h3 style={{ marginTop: '2rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '0.5rem' }}>🧠 学習（復習）のアルゴリズム</h3>
               <p>各フラッシュカードの裏には、「Forgot」「Hard」「Good」「Easy」の4つのボタンがあります。<br/>
               これを押すと、<strong>SuperMemo-2 (SM-2)</strong> に基づく間隔反復アルゴリズムが作動し、「次回の復習日時（nextReviewDate）」や「難易度（easeFactor）」が再計算されます。<br/>
               これにより、人間の脳が「忘れかける絶妙なタイミング」で再度カードが出題され、長期記憶への定着を圧倒的に高めます。</p>

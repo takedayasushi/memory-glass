@@ -6,10 +6,12 @@ export default function AboutChat({ user }) {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
@@ -58,7 +60,10 @@ export default function AboutChat({ user }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', border: '1px solid var(--glass-border)', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', padding: '1rem' }}>
       
       {/* Chat Messages */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '300px', overflowY: 'auto', padding: '0.5rem' }}>
+      <div 
+        ref={chatContainerRef}
+        style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '300px', overflowY: 'auto', padding: '0.5rem' }}
+      >
         {messages.map((msg, index) => (
           <div key={index} style={{ 
             alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
@@ -77,7 +82,6 @@ export default function AboutChat({ user }) {
             <span style={{ animation: 'pulse 1s infinite' }}>考え中...</span>
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Area */}
