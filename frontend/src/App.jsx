@@ -15,6 +15,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [activeTab, setActiveTab] = useState('app'); // 'app' or 'db'
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -199,7 +200,25 @@ function App() {
           </section>
         </main>
       ) : (
-        <main className="main-content dashboard-layout">
+        <div style={{ width: '100%' }}>
+          {/* Mobile Tabs (only visible on small screens) */}
+          <div className="mobile-tabs">
+            <button 
+              className={`mobile-tab-btn ${activeTab === 'app' ? 'active' : ''}`}
+              onClick={() => setActiveTab('app')}
+            >
+              📱 アプリ画面
+            </button>
+            <button 
+              className={`mobile-tab-btn ${activeTab === 'db' ? 'active' : ''}`}
+              onClick={() => setActiveTab('db')}
+            >
+              🗄️ データベース
+            </button>
+          </div>
+
+          <main className={`main-content dashboard-layout show-${activeTab}`}>
+
         
         {/* Left Column: UI */}
         <div className="left-column" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -233,7 +252,8 @@ function App() {
           <DbViewer data={cards} />
         </div>
 
-      </main>
+          </main>
+        </div>
       )}
     </div>
   )

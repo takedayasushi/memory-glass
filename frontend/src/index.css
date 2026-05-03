@@ -108,9 +108,57 @@ p {
   align-items: start;
 }
 
+/* Mobile Tab Navigation */
+.mobile-tabs {
+  display: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 1rem;
+  border: 1px solid var(--glass-border);
+}
+
+.mobile-tab-btn {
+  flex: 1;
+  padding: 0.6rem;
+  text-align: center;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mobile-tab-btn.active {
+  background: var(--accent-color);
+  color: white;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+}
+
 @media (max-width: 900px) {
   .dashboard-layout {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .mobile-tabs {
+    display: flex;
+  }
+
+  .dashboard-layout.show-app .right-column {
+    display: none;
+  }
+
+  .dashboard-layout.show-db .left-column {
+    display: none;
+  }
+  
+  .right-column {
+    position: static !important;
+    height: 65vh !important;
+    max-height: none !important;
   }
 }
 
