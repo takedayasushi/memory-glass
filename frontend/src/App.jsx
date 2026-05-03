@@ -20,6 +20,7 @@ function App() {
   const [queryLogs, setQueryLogs] = useState([]);
   const [reviewMode, setReviewMode] = useState('list'); // 'list' or 'study'
   const [studyIndex, setStudyIndex] = useState(0);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -453,12 +454,16 @@ function App() {
                           }}
                         >
                           <Flashcard 
+                            key={studyCards[studyIndex]?.id}
                             card={studyCards[studyIndex]} 
                             onReviewed={(cardId, quality) => {
+                              if (isNavigating) return;
+                              setIsNavigating(true);
                               setTimeout(() => {
                                 if (studyIndex < studyCards.length - 1) {
                                   setStudyIndex(prev => prev + 1);
                                 }
+                                setIsNavigating(false);
                               }, 600);
                             }}
                           />
