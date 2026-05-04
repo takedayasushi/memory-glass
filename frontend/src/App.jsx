@@ -20,7 +20,7 @@ function App() {
   const [queryLogs, setQueryLogs] = useState([]);
   const [reviewMode, setReviewMode] = useState('list'); // 'list' or 'study'
   const [studyIndex, setStudyIndex] = useState(0);
-  const [isNavigating, setIsNavigating] = useState(false);
+  const [studyCardSnapshot, setStudyCardSnapshot] = useState([]);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -206,11 +206,9 @@ function App() {
   const lowCount = cards.filter(c => getRetentionScore(c) < 40).length;
   const avgRetention = cards.length > 0 ? Math.round(cards.reduce((sum, c) => sum + getRetentionScore(c), 0) / cards.length) : 0;
 
-  const studyCards = [...cards].sort((a, b) => {
-    const dateA = a.nextReviewDate ? (a.nextReviewDate.toDate ? a.nextReviewDate.toDate() : new Date(a.nextReviewDate)) : new Date(0);
-    const dateB = b.nextReviewDate ? (b.nextReviewDate.toDate ? b.nextReviewDate.toDate() : new Date(b.nextReviewDate)) : new Date(0);
-    return dateA - dateB;
-  });
+  // studyCardSnapshot is frozen when entering study mode so Firestore
+  // updates don't re-sort the array mid-session (which caused index skips).
+  const studyCards = studyCardSnapshot;
 
   return (
     <div className="app-container">
@@ -411,8 +409,14 @@ function App() {
                     </button>
                     <button 
                       onClick={() => {
-                        setReviewMode('study');
+                        const sorted = [...cards].sort((a, b) => {
+                          const dateA = a.nextReviewDate ? (a.nextReviewDate.toDate ? a.nextReviewDate.toDate() : new Date(a.nextReviewDate)) : new Date(0);
+                          const dateB = b.nextReviewDate ? (b.nextReviewDate.toDate ? b.nextReviewDate.toDate() : new Date(b.nextReviewDate)) : new Date(0);
+                          return dateA - dateB;
+                        });
+                        setStudyCardSnapshot(sorted);
                         setStudyIndex(0);
+                        setReviewMode('study');
                       }}
                       style={{
                         background: reviewMode === 'study' ? 'var(--accent-color)' : 'transparent',
@@ -457,14 +461,9 @@ function App() {
                             key={studyCards[studyIndex]?.id}
                             card={studyCards[studyIndex]} 
                             onReviewed={(cardId, quality) => {
-                              if (isNavigating) return;
-                              setIsNavigating(true);
-                              setTimeout(() => {
-                                if (studyIndex < studyCards.length - 1) {
-                                  setStudyIndex(prev => prev + 1);
-                                }
-                                setIsNavigating(false);
-                              }, 600);
+                              if (studyIndex < studyCards.length - 1) {
+                                setStudyIndex(prev => prev + 1);
+                              }
                             }}
                           />
                         </div>
